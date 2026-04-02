@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Выбор</title>
+  <style>
+    /* Общие стили */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    .container {
+      text-align: center;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      color: #2c3e50;
+      margin: 0 0 30px 0;
+      font-weight: 600;
+    }
+
+    .link-button {
+      display: block;
+      margin: 15px auto;
+      padding: 14px 20px;
+      width: 80%;
+      max-width: 350px;
+      text-decoration: none;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: white;
+      background-color: #3498db;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .link-button:hover {
+      background-color: #2980b9;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .link-button:active {
+      transform: translateY(0);
+    }
+
+    .link-button:first-child {
+      background-color: #27ae60;
+    }
+
+    .link-button:first-child:hover {
+      background-color: #219653;
+    }
+
+    /* Кнопка выхода */
+    .logout-button {
+      background-color: #95a5a6 !important; /* Серый цвет */
+      margin-top: 30px;
+    }
+
+    .logout-button:hover {
+      background-color: #7f8c8d !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>О чём хотите узнать?</h1>
+    <a href="/groups" class="link-button">О присутствии студентов</a>
+    <a href="/classrooms" class="link-button">Запрещённые сайты или приложения</a>
+    {% if admin %}
+    <a href="/teachers" class="link-button">Учителя</a>
+    {% endif %}
+    <!-- Кнопка выхода -->
+    <a href="/logout" class="link-button logout-button">🚪 Выйти из аккаунта</a>
+  </div>
+</body>
+</html>

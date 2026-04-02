@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Управление блокировкой</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3a86ff;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --text: #2c3e50;
+      --text-light: #7f8c8d;
+      --bg-card: #ffffff;
+      --bg-page: #f8fafd;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      padding: 20px;
+      margin: 0;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 1.8em;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-light);
+      margin-bottom: 40px;
+      font-size: 1em;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 1.3em;
+      color: var(--text);
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 30px;
+      height: 2px;
+      background-color: #2573a6;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 18px 22px;
+      margin-bottom: 14px;
+      transition: var(--transition);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid var(--primary);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-info {
+      flex: 1;
+    }
+
+    .card-info label {
+      margin: 0;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 1.02em;
+    }
+
+    .card-info span {
+      display: block;
+      font-size: 0.88em;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 58px;
+      height: 30px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 30px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    input:checked + .slider {
+      background-color: var(--success);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(28px);
+    }
+
+    .status-text {
+      font-size: 0.9em;
+      font-weight: 500;
+      min-width: 70px;
+      letter-spacing: -0.2px;
+    }
+
+    .status-active {
+      color: var(--success);
+    }
+
+    .status-inactive {
+      color: var(--danger);
+    }
+
+    .no-items {
+      text-align: center;
+      color: var(--text-light);
+      font-style: italic;
+      padding: 24px;
+      background-color: #f1f5f9;
+      border-radius: var(--border-radius);
+      font-size: 0.95em;
+      border: 1px dashed #ccc;
+    }
+
+    .buttons {
+      text-align: center;
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 6px rgba(58, 134, 255, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: #2a75e0;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(58, 134, 255, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-action {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 28px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(52, 152, 219, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-action:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(52, 152, 219, 0.35);
+    }
+
+    .btn-action:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      display: none;
+    }
+    .btn-delete {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: var(--transition);
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  color: var(--danger);
+}
+
+.card:hover .btn-delete {
+  opacity: 0.9;
+}
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Управление блокировкой фильтра {{ name }}</h1>
+  <p class="subtitle">Настройка приложений и сайтов</p>
+
+  <div class="section">
+  <h2 class="section-title">📱 Приложения</h2>
+  {% if anti_app %}
+    {% for item in anti_app %}
+      <div class="card" id="card-app-{{ item[0] }}">
+        <div class="card-info">
+          <label>{{ item[1] }}</label>
+          <span>Приложение</span>
+        </div>
+        <div class="toggle-container">
+          <label class="toggle">
+            <input 
+              type="checkbox" 
+              class="toggle-input" 
+              data-id="{{ item[0] }}" 
+              data-type="app" 
+              data-name="{{ item[1] }}"
+              {% if item[2] == 0 %}checked{% endif %}>
+            <span class="slider"></span>
+          </label>
+          <span 
+            class="status-text {{ 'status-active' if item[2] == 0 else 'status-inactive' }}" 
+            id="status-{{ item[0] }}-app">
+            {{ 'Включено' if item[2] == 0 else 'Выключено' }}
+          </span>
+          <button class="btn-delete" data-id="{{ item[0] }}" data-type="app" title="Удалить приложение">
+            🗑️
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="no-items">Нет приложений для отображения</div>
+  {% endif %}
+</div>
+
+<!-- Сайты -->
+<div class="section">
+  <h2 class="section-title">🌐 Сайты</h2>
+  {% if anti_website %}
+    {% for item in anti_website %}
+      <div class="card" id="card-website-{{ item[0] }}">
+        <div class="card-info">
+          <label>{{ item[1] }}</label>
+          <span>Сайт</span>
+        </div>
+        <div class="toggle-container">
+          <label class="toggle">
+            <input 
+              type="checkbox" 
+              class="toggle-input" 
+              data-id="{{ item[0] }}" 
+              data-type="website" 
+              data-name="{{ item[1] }}"
+              {% if item[2] == 0 %}checked{% endif %}>
+            <span class="slider"></span>
+          </label>
+          <span 
+            class="status-text {{ 'status-active' if item[2] == 0 else 'status-inactive' }}" 
+            id="status-{{ item[0] }}-website">
+            {{ 'Включено' if item[2] == 0 else 'Выключено' }}
+          </span>
+          <button class="btn-delete" data-id="{{ item[0] }}" data-type="website" title="Удалить сайт">
+            🗑️
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="no-items">Нет сайтов для отображения</div>
+  {% endif %}
+</div>
+
+  <!-- Кнопки -->
+  <div class="buttons">
+    <button class="btn-action" id="save-and-back">
+      <span class="loader" id="save-loader"></span>
+      <span id="save-text">✅ Сохранить и вернуться</span>
+    </button>
+    <a href="/add-block/{{ id }}" class="btn btn-primary">➕ Добавить запрещённое</a>
+  </div>
+
+  <script>
+    // Обновление статуса при переключении
+    document.querySelectorAll('.toggle-input').forEach(checkbox => {
+      checkbox.addEventListener('change', function () {
+        const id = this.getAttribute('data-id');
+        const type = this.getAttribute('data-type');
+        const statusSpan = document.getElementById(`status-${id}-${type}`);
+
+        if (this.checked) {
+          statusSpan.textContent = 'Включено';
+          statusSpan.className = 'status-text status-active';
+        } else {
+          statusSpan.textContent = 'Выключено';
+          statusSpan.className = 'status-text status-inactive';
+        }
+      });
+    });
+
+    // Сохранение и возврат
+    document.getElementById('save-and-back').addEventListener('click', function () {
+      const saveBtn = this;
+      const loader = document.getElementById('save-loader');
+      const saveText = document.getElementById('save-text');
+
+      // Показываем лоадер
+      loader.style.display = 'inline-block';
+      saveText.textContent = 'Сохраняем...';
+      saveBtn.disabled = true;
+
+      const toggles = document.querySelectorAll('.toggle-input');
+      const data = { anti_app: [], anti_website: [] };
+
+      toggles.forEach(toggle => {
+        const id = toggle.getAttribute('data-id');
+        const type = toggle.getAttribute('data-type');
+        const name = toggle.getAttribute('data-name');
+        const state = toggle.checked ? 0 : 1;
+
+        if (type === 'app') {
+          data.anti_app.push({ id, name, state });
+        } else if (type === 'website') {
+          data.anti_website.push({ id, name, state });
+        }
+      });
+
+      fetch('/protiv/{{ id }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        console.log('✅ Успешно сохранено:', result);
+        setTimeout(() => { window.location.href = '/'; }, 300);
+      })
+      .catch(error => {
+        console.error('❌ Ошибка:', error);
+        alert('Не удалось сохранить. Проверьте соединение.');
+        saveBtn.disabled = false;
+        loader.style.display = 'none';
+        saveText.textContent = '✅ Сохранить и вернуться';
+      });
+    });
+    document.querySelectorAll('.btn-delete').forEach(button => {
+  button.addEventListener('click', function () {
+    const id = this.getAttribute('data-id');
+    const type = this.getAttribute('data-type');
+    const itemType = type === 'app' ? 'приложение' : 'сайт';
+    const name = this.closest('.card').querySelector('.card-info label').textContent;
+
+    if (!confirm(`Вы уверены, что хотите удалить "${name}" из списка ${itemType}?`)) {
+      return;
+    }
+
+    fetch(`/protiv/${type}/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Ошибка удаления');
+      return response.json();
+    })
+    .then(() => {
+      // Удаляем карточку из DOM
+      document.getElementById(`card-${type}-${id}`).remove();
+
+      // Если после удаления карточек не осталось — показываем "Нет элементов"
+      const section = this.closest('.section');
+      const cards = section.querySelectorAll('.card');
+      if (cards.length === 0) {
+        const noItems = document.createElement('div');
+        noItems.className = 'no-items';
+        noItems.textContent = `Нет ${type === 'app' ? 'приложений' : 'сайтов'} для отображения`;
+        section.appendChild(noItems);
+      }
+    })
+    .catch(err => {
+      console.error('❌ Ошибка при удалении:', err);
+      alert(`Не удалось удалить ${itemType}. Попробуйте позже.`);
+    });
+  });
+});
+  </script>
+
+</body>
+</html>

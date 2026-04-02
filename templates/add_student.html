@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Добавить студента</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3a86ff;
+      --text: #2c3e50;
+      --bg: #f8fafd;
+      --card-bg: #ffffff;
+      --border: #ddd;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --border-radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: var(--bg);
+      margin: 0;
+      padding: 20px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1em;
+      font-weight: 500;
+      color: white;
+      background-color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .submit-button:hover {
+      background-color: #2c6ed4;
+    }
+
+    .back-button {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    /* Стиль для предпросмотра фото */
+    #photo-preview {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    #photo-preview img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .photo-label {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.9em;
+      color: #777;
+    }
+
+    /* Стили для камеры */
+    #camera-container {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fafafa;
+    }
+
+    #video {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .camera-buttons {
+      margin-top: 15px;
+    }
+
+    .camera-button {
+      padding: 10px 15px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+    }
+
+    .camera-button.cancel {
+      background: #e74c3c;
+    }
+
+    .camera-button:hover {
+      opacity: 0.9;
+    }
+
+    #take-photo-btn {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>➕ Добавить студента</h1>
+    
+    <form action="/add_student/{{ id_group }}" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="student_name">ФИО студента</label>
+        <input type="text" id="student_name" name="student_name" placeholder="Введите имя студента" required />
+      </div>
+
+      <div class="form-group">
+        <label for="photo">Фотография студента</label>
+        <input type="file" id="photo" name="photo" accept="image/*" />
+        <button type="button" id="open-camera-btn" class="camera-button" style="margin-top: 10px; width: 100%;">📸 Сделать фото</button>
+        <div class="photo-label">Можно сделать фото через камеру или выбрать из галереи</div>
+
+        <!-- Контейнер камеры -->
+        <div id="camera-container">
+          <video id="video" autoplay playsinline></video>
+          <div class="camera-buttons">
+            <button type="button" id="capture-btn" class="camera-button">📷 Сфотографировать</button>
+            <button type="button" id="cancel-camera-btn" class="camera-button cancel">❌ Отмена</button>
+          </div>
+        </div>
+
+        <!-- Предпросмотр результата -->
+        <div id="photo-preview">
+          <img id="preview-img" src="#" alt="Предпросмотр фото" />
+        </div>
+      </div>
+
+      <button type="submit" class="submit-button">Добавить студента</button>
+    </form>
+
+    <a href="/groups" class="back-button">← Назад к группам</a>
+  </div>
+
+  <!-- Скрытый canvas для захвата фото -->
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoInput = document.getElementById('photo');
+    const previewImg = document.getElementById('preview-img');
+    const cameraContainer = document.getElementById('camera-container');
+    const openCameraBtn = document.getElementById('open-camera-btn');
+    const captureBtn = document.getElementById('capture-btn');
+    const cancelCameraBtn = document.getElementById('cancel-camera-btn');
+
+    // Открыть камеру
+    openCameraBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        cameraContainer.style.display = 'block';
+        openCameraBtn.style.display = 'none'; // Скрываем кнопку, пока камера активна
+      } catch (err) {
+        alert('Не удалось получить доступ к камере: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Сфотографировать
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Получаем изображение как Data URL
+      canvas.toBlob((blob) => {
+        // Создаем File из Blob
+        const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
+
+        // Создаем DataTransfer для установки файла в input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        photoInput.files = dataTransfer.files;
+
+        // Показываем превью
+        const imageUrl = URL.createObjectURL(file);
+        previewImg.src = imageUrl;
+        previewImg.style.display = 'block';
+
+        // Очищаем и скрываем камеру
+        stopCamera();
+        cameraContainer.style.display = 'none';
+        openCameraBtn.style.display = 'block'; // Показываем кнопку снова
+
+      }, 'image/jpeg', 0.9);
+    });
+
+    // Отмена
+    cancelCameraBtn.addEventListener('click', () => {
+      stopCamera();
+      cameraContainer.style.display = 'none';
+      openCameraBtn.style.display = 'block';
+    });
+
+    // Функция остановки камеры
+    function stopCamera() {
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+    }
+
+    // Предпросмотр при выборе файла через input
+    photoInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          previewImg.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewImg.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
